@@ -31,6 +31,7 @@ class _StartRecState extends State<StartRec> {
   }
 
   final record = Record();
+  bool isRecording = true;
 
   Future<String> getFilePath() async {
     final Directory directory = await getTemporaryDirectory();
@@ -47,30 +48,26 @@ class _StartRecState extends State<StartRec> {
     if (await record.hasPermission()) {
       String path = await getFilePath();
       // Start recording
-      await record.start(
-        path: path,
-        encoder: AudioEncoder.aacLc, // by default
-        bitRate: 128000, // by default
-        samplingRate: 44100, // by default
-      );
+      while(isRecording){
+        await record.start(
+          path: path,
+          encoder: AudioEncoder.aacLc, // by default
+          bitRate: 128000, // by default
+          samplingRate: 44100, // by default
+        );
 
 
-      // Record For one min
-      await Future.delayed(Duration(seconds: 10));
+        // Record For one min
+        await Future.delayed(Duration(seconds: 5));
 
-      // Stop recording
-      await record.stop();
-      // Reset the recording file path for the next recording
-      path = '';
+        // Stop recording
+        await record.stop();
+        // Reset the recording file path for the next recording
+        // path = '';
 
-      // Wait for a short period before starting the next recording
-      await Future.delayed(const Duration(seconds: 1));
-
-
-    }
-    else{
-      Permission.microphone.request();
-      startRec();
+        // Wait for a short period before starting the next recording
+        await Future.delayed(const Duration(seconds: 1));
+      }
     }
   }
 
@@ -96,6 +93,8 @@ class _StartRecState extends State<StartRec> {
   }
 
   Future<void> stoprec() async {
+
+    isRecording = false;
     await record.stop();
   }
 
